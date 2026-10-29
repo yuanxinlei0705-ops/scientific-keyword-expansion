@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:scientific-keyword-expansion:keyword-report:1.0",
+  "title": "Scientific Keyword Expansion Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["topic", "focus", "exclude", "requested_count", "generated_count", "mode", "language", "generated_at", "domain_analysis", "keywords", "search_queries", "relationships", "warnings"],
+  "properties": {
+    "topic": {"type": "string", "minLength": 1},
+    "focus": {"$ref": "#/$defs/strings"},
+    "exclude": {"$ref": "#/$defs/strings"},
+    "requested_count": {"type": "integer", "minimum": 1, "maximum": 200},
+    "generated_count": {"type": "integer", "minimum": 0},
+    "mode": {"enum": ["quick", "research"]},
+    "task_strategy": {"enum": ["field_overview", "research_problem", "method_exploration", "literature_search"]},
+    "language": {"enum": ["bilingual", "english", "chinese"]},
+    "generated_at": {"type": "string", "format": "date"},
+    "domain_analysis": {"type": "object"},
+    "search_concepts": {"type": "array", "items": {"$ref": "#/$defs/search_concept"}},
+    "keywords": {"type": "array", "items": {"$ref": "#/$defs/keyword"}},
+    "search_queries": {"type": "array", "items": {"$ref": "#/$defs/query"}},
+    "relationships": {"type": "array", "items": {"$ref": "#/$defs/relationship"}},
+    "quality_checks": {"$ref": "#/$defs/quality_checks"},
+    "research_search_brief": {"$ref": "#/$defs/brief"},
+    "revision": {"type": ["object", "null"], "additionalProperties": false,
+      "required": ["added_keywords", "removed_keywords", "retained_keywords", "revision_reason"],
+      "properties": {"added_keywords": {"$ref": "#/$defs/strings"}, "removed_keywords": {"$ref": "#/$defs/strings"},
+                     "retained_keywords": {"$ref": "#/$defs/strings"}, "revision_reason": {"type": "string"}}},
+    "warnings": {"$ref": "#/$defs/strings"}
+  },
+  "$defs": {
+    "strings": {"type": "array", "items": {"type": "string"}},
+    "brief": {"type": "object", "additionalProperties": false,
+      "required": ["research_problem", "priority_keywords", "priority_queries", "main_directions", "terms_needing_verification", "transfer_opportunities"],
+      "properties": {"research_problem": {"type": "string"}, "priority_keywords": {"$ref": "#/$defs/strings"},
+                     "priority_queries": {"$ref": "#/$defs/strings"}, "main_directions": {"$ref": "#/$defs/strings"},
+                     "terms_needing_verification": {"$ref": "#/$defs/strings"},
+                     "transfer_opportunities": {"$ref": "#/$defs/strings"}}},
+    "static_validation": {"type": "object", "additionalProperties": false,
+      "required": ["passed", "issues", "ambiguous_acronyms", "platform_notes"],
+      "properties": {"passed": {"type": "boolean"}, "issues": {"$ref": "#/$defs/strings"},
+                     "ambiguous_acronyms": {"$ref": "#/$defs/strings"}, "platform_notes": {"type": "object"}}},
+    "live_evaluation": {"type": ["object", "null"], "additionalProperties": false,
+      "required": ["status", "platform", "query_history", "revision_count", "retrieval_count", "sample_size", "query_coverage", "estimated_precision", "labelled_sample_size", "ambiguity_warning", "review_warning", "evaluation_method"],
+      "properties": {"status": {"type": "string"}, "platform": {"type": "string"},
+                     "query_history": {"type": "array", "items": {"type": "object"}},
+                     "revision_count": {"type": "integer", "minimum": 0},
+                     "retrieval_count": {"type": ["integer", "null"]},
+                     "sample_size": {"type": "integer", "minimum": 0},
+                     "query_coverage": {"type": ["number", "null"]},
+                     "estimated_precision": {"type": ["number", "null"]},
+                     "labelled_sample_size": {"type": "integer", "minimum": 0},
+                     "ambiguity_warning": {"type": "boolean"}, "review_warning": {"type": "string"},
+                     "evaluation_method": {"type": "string"}}},
+    "score": {"type": "integer", "minimum": 0, "maximum": 100},
+    "search_concept": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "role", "terms"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "role": {"enum": ["research_object", "research_problem", "method", "application_context", "theory", "adjacent_domain", "review"]},
+        "terms": {"$ref": "#/$defs/strings"}
+      }
+    },
+    "quality_checks": {
+      "type": "object", "additionalProperties": false,
+      "required": ["passed", "issues", "keyword_count", "query_count"],
+      "properties": {
+        "passed": {"type": "boolean"},
+        "issues": {"type": "array", "items": {"$ref": "#/$defs/quality_issue"}},
+        "keyword_count": {"type": "integer", "minimum": 0},
+        "query_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "quality_issue": {
+      "type": "object", "additionalProperties": false,
+      "required": ["code", "severity", "message"],
+      "properties": {
+        "code": {"type": "string"},
+        "severity": {"enum": ["error", "warning"]},
+        "message": {"type": "string"}
+      }
+    },
+    "scores": {
+      "type": "object", "additionalProperties": false,
+      "required": ["direct_relevance", "term_accuracy", "coverage_potential", "cross_domain_value", "distinctiveness"],
+      "properties": {
+        "direct_relevance": {"$ref": "#/$defs/score"},
+        "term_accuracy": {"$ref": "#/$defs/score"},
+        "coverage_potential": {"$ref": "#/$defs/score"},
+        "cross_domain_value": {"$ref": "#/$defs/score"},
+        "distinctiveness": {"$ref": "#/$defs/score"}
+      }
+    },
+    "paper": {
+      "type": "object", "additionalProperties": false,
+      "required": ["title", "authors", "publication_year", "doi", "source", "abstract", "url", "matched_keyword", "match_type", "matched_field", "retrieved_at"],
+      "properties": {
+        "title": {"type": "string"}, "authors": {"$ref": "#/$defs/strings"},
+        "publication_year": {"type": ["integer", "null"]}, "doi": {"type": ["string", "null"]},
+        "source": {"type": "string"}, "abstract": {"type": "string"}, "url": {"type": "string"},
+        "matched_keyword": {"type": "string"},
+        "match_type": {"enum": ["exact_phrase", "synonym", "related_topic"]},
+        "matched_field": {"enum": ["title_or_abstract", "title", "abstract", "search_result_only"]},
+        "retrieved_at": {"type": "string", "format": "date-time"},
+        "sources": {"$ref": "#/$defs/strings"},
+        "context_assessment": {"type": "string"},
+        "relevance_reason": {"type": "string"},
+        "reviewer": {"type": "string"}
+      }
+    },
+    "keyword": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "keyword", "chinese", "category", "term_type", "reason", "scores", "abbreviation", "synonyms", "concept_id", "scope", "query_role", "relevance_score", "score_basis", "priority", "verification_status", "research_status", "evidence"],
+      "properties": {
+        "id": {"type": "integer", "minimum": 1}, "keyword": {"type": "string", "minLength": 1},
+        "chinese": {"type": "string"}, "category": {"type": "string", "minLength": 1},
+        "term_type": {"enum": ["standard", "related", "exploratory"]},
+        "reason": {"type": "string", "minLength": 1}, "scores": {"$ref": "#/$defs/scores"},
+        "abbreviation": {"type": "string"}, "synonyms": {"$ref": "#/$defs/strings"},
+        "concept_id": {"type": "string"}, "scope": {"enum": ["core", "adjacent", "transfer"]},
+        "query_role": {"enum": ["problem", "method", "application"]},
+        "layer": {"enum": ["core_concept", "theory", "method", "subproblem", "metric", "adjacent", "transfer"]},
+        "focus_tags": {"$ref": "#/$defs/strings"},
+        "relevance_score": {"$ref": "#/$defs/score"}, "score_basis": {"const": "agent_estimate"},
+        "topic_relevance": {"enum": ["high", "medium", "low", ""]},
+        "search_utility": {"enum": ["high", "medium", "low", ""]},
+        "exploration_value": {"enum": ["high", "medium", "low", ""]},
+        "assessment_basis": {"enum": ["agent_explicit", "derived_from_legacy_scores"]},
+        "term_class": {"enum": ["established_term", "general_academic_term", "descriptive_phrase", "exploratory_term", ""]},
+        "term_class_basis": {"enum": ["agent_estimate", "legacy_mapping"]},
+        "translation_note": {"type": "string"},
+        "verification_review": {"type": "object"},
+        "verification_review_reason": {"type": "string"},
+        "relevance_level": {"enum": ["high", "medium", "low"]},
+        "score_reason": {"type": "string"},
+        "priority": {"enum": ["high", "medium", "low"]},
+        "verification_status": {"enum": ["unverified", "related_only", "supported", "not_checked", "searched_no_match", "search_failed", "term_found", "context_supported", "expert_reviewed"]},
+        "verification_checked_at": {"type": ["string", "null"]},
+        "verification_sources": {"$ref": "#/$defs/strings"},
+        "verification_attempts": {"type": "array", "items": {"type": "object"}},
+        "research_status": {"enum": ["unverified", "emerging", "active", "established", "exploratory"]},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/paper"}}
+      }
+    },
+    "query": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "objective", "concepts", "logic", "platform", "expression"],
+      "properties": {
+        "kind": {"enum": ["overview", "review", "core_problem", "method", "application", "cross_domain", "focused"]},
+        "objective": {"type": "string"}, "concepts": {"$ref": "#/$defs/strings"},
+        "logic": {"type": "string"}, "platform": {"const": "generic_boolean"},
+        "groups": {"type": "array", "items": {"$ref": "#/$defs/search_concept"}},
+        "static_validation": {"$ref": "#/$defs/static_validation"},
+        "priority": {"type": "integer", "minimum": 1, "maximum": 3},
+        "expected_papers": {"type": "string"},
+        "recommendation_reason": {"type": "string"},
+        "live_evaluation": {"$ref": "#/$defs/live_evaluation"},
+        "expression": {"type": "string"}
+      }
+    },
+    "relationship": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source", "target", "relation", "verification_status"],
+      "properties": {
+        "source": {"type": "string"}, "target": {"type": "string"},
+        "relation": {"enum": ["is_a", "part_of", "uses_method", "models", "evaluated_by", "related_to", "potential_transfer", "broader_than", "narrower_than", "applied_to"]},
+        "explanation": {"type": "string"},
+        "semantic_status": {"enum": ["unreviewed", "agent_reviewed", "uncertain"]},
+        "verification_status": {"const": "unverified"}
+      }
+    }
+  }
+}

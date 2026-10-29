@@ -1,0 +1,15 @@
+# Literature verification
+
+Research mode samples up to five results per provider per keyword. It has request timeout, bounded retry with backoff (including HTTP 429), per-provider spacing, one-day default cache, and best-effort fallback across sources. arXiv requests are spaced by at least three seconds. A cache write failure is reported without discarding a successful API response. Optional environment variables: `OPENALEX_API_KEY`, `SEMANTIC_SCHOLAR_API_KEY`, `SKE_CONTACT_EMAIL`, `SKE_CACHE_DIR`. Use `--providers` to limit a Research Mode CLI run to chosen sources.
+
+Evidence types:
+
+- `exact_phrase`: canonical phrase appears in returned title or abstract.
+- `synonym`: a supplied abbreviation or alternative appears in returned title or abstract.
+- `related_topic`: search returned a record, but no exact phrase or synonym was found in those fields.
+
+`matched_field` distinguishes title, abstract, and search-result-only matches. Cached evidence retains the original retrieval time. Duplicate DOI records are combined; without DOI, normalized title, year, and first author form a conservative fallback. `sources` preserves every provider that found the record. These checks do not inspect full text, settle disciplinary meaning, or establish that a method has been used in the requested application. The small sample size cannot support corpus-wide prevalence or mature/active status. `research_status` stays `unverified` unless a separate maturity assessment is made. `evidence` is a list of distinct sampled records, not a database count.
+
+Term status levels: `not_checked` (Quick Mode), `search_failed` (all attempted sources failed), `searched_no_match` (searched, but no canonical phrase or supplied synonym was found in sampled title/abstract), `term_found` (phrase or synonym found), `context_supported` (a reviewer cites a retrieved record and explains target-topic context), and `expert_reviewed` (that review also names the expert). `term_found` does not imply target-topic support. `verification_attempts`, `verification_checked_at`, `matched_field`, DOI/URL, and `sources` make each conclusion traceable. Old status values remain accepted in archived JSON. An empty successful query is unknown, not proof that research does not exist. Cache snapshots can be stale until TTL expires.
+
+Live query evaluation executes an OpenAlex plain-text `search` approximation for at most three representative Boolean strategies. It records the actual parameters, API count when available, sample, timestamp, result status, and bounded zero-result relaxation history. Its `query_coverage` is only lexical coverage of concept groups in the sampled title/abstract metadata, never corpus recall. `estimated_precision` remains null unless DOI/URL-keyed human relevance labels are supplied; then it is only the fraction among labelled sampled records, with `labelled_sample_size` disclosed. Agent-labelled rows do not produce this estimate. It does not establish that the original Boolean expression performs well in Scopus or Web of Science.
